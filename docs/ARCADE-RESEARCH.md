@@ -1,6 +1,12 @@
 # Yaba Fight: arcade design and implementation research
 
-Research and design decisions, 17 October 2026. This report precedes the arcade implementation. It separates source observations from the choices proposed for this game. It is a design argument and a verification plan, not evidence of player retention or a claim that enjoyment can be proved by unit tests.
+Research and design decisions, 17 October 2026. The initial report preceded implementation; the pacing update below reflects subsequent player feedback. It separates source observations from the choices proposed for this game. It is a design argument and a verification plan, not evidence of player retention or a claim that enjoyment can be proved by unit tests.
+
+## Pacing update after play feedback
+
+The first release's short decision countdown, numeric move callouts and 700ms slip window made the rules hard to learn. These were removed. Opponents now hold an illustrated anticipation pose while the player thinks; choosing a move starts an 850ms exchange animation. Power and jab have separate anticipation/contact drawings. Slips depend on direction, move the hands and viewpoint together, hold through contact, and return after the punch. The guide illustrates both directions. The boss retains a 3.6-second animation after a response is chosen, with no deadline for choosing that response. Every difficulty uses this player-paced flow. Rounds last up to 30 exchanges before score/overtime resolution, with knockouts ending them earlier.
+
+The round announcement and Fight now occupy separate presentation phases. Recorded clip duration, plus at least 1.25 seconds of silence, gates the next announcer clip for all three rounds. The player-facing victory test control was removed. Fights 2–7 are locked on fresh saves, including Practice; winning an arcade fight unlocks only the next fighter and persists that achievement locally. Earlier timing recommendations in this research are historical proposals, superseded by these player-tested requirements.
 
 ## The diagnosis
 

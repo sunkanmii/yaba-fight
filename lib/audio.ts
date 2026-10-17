@@ -14,6 +14,7 @@ export type SoundCue =
   | "miss"
   | "charge"
   | "victory"
+  | "fight"
   | "round1"
   | "round2"
   | "round3";
@@ -73,6 +74,7 @@ export class FightAudio {
   private musicVolume = 0.35;
   private effectsVolume = 0.75;
   private active = false;
+  private voiceEnd = 0;
   private disposed = false;
   unlock() {
     if (this.disposed) return;
@@ -203,17 +205,27 @@ export class FightAudio {
     const t = this.ctx.currentTime,
       fx = this.fx;
     const v = 0.96 + Math.random() * 0.08;
-    if (cue === "round1" || cue === "round2" || cue === "round3") {
+    if (
+      cue === "round1" ||
+      cue === "round2" ||
+      cue === "round3" ||
+      cue === "fight"
+    ) {
       const announce = () => {
-        this.sample(cue, 0.7);
-        this.sample("fight", 0.65, 0.85);
+        if (!this.ctx) return;
+        const buffer = this.samples.get(cue);
+        if (!buffer) return;
+        const delay = Math.max(0, this.voiceEnd - this.ctx.currentTime);
+        this.sample(cue, cue === "fight" ? 0.65 : 0.7, delay);
+        // Measured from the end of the decoded recording, for every round.
+        this.voiceEnd = this.ctx.currentTime + delay + buffer.duration + 1.25;
       };
       if (this.samples.has(cue)) announce();
       else
         void this.loading?.then(() => {
           if (!this.disposed && this.ctx?.state === "running") announce();
         });
-      this.play("bell");
+      if (cue !== "fight") this.play("bell");
       return;
     }
     if (cue === "charge") {

@@ -144,6 +144,12 @@
     "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
   },
   {
+    "file": "public/arcade/fighters/chuka/8.webp",
+    "sha256": "68c69ff665c93376fa85afbcfb5da27a91d7e82fd017cfc430d717a6faa69025",
+    "bytes": 53552,
+    "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
+  },
+  {
     "file": "public/arcade/fighters/dele/0.webp",
     "sha256": "e6511d88504c4537695340d304aab3882caa64f5b23bcc54d74339598412c12c",
     "bytes": 53448,
@@ -189,6 +195,12 @@
     "file": "public/arcade/fighters/dele/7.webp",
     "sha256": "be0a2293fa15a9201b3c6955ea7a7696231b3a48af8567aae358dabaad4dc521",
     "bytes": 53532,
+    "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
+  },
+  {
+    "file": "public/arcade/fighters/dele/8.webp",
+    "sha256": "1609d135d35d872dbbc3a725004dd7c4b781bac5b2919adb68bf7f04f1ab704d",
+    "bytes": 60142,
     "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
   },
   {
@@ -240,6 +252,12 @@
     "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
   },
   {
+    "file": "public/arcade/fighters/ismail/8.webp",
+    "sha256": "c322177c967b130538a7e2d7207a7fa38f04d7bb580fdc9cc33f29dbef35be34",
+    "bytes": 65166,
+    "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
+  },
+  {
     "file": "public/arcade/fighters/kunle/0.webp",
     "sha256": "c01512a93d5477bfedac80f1325bd20a2e1771d8e1c228fa9367b80b922945a8",
     "bytes": 60728,
@@ -285,6 +303,12 @@
     "file": "public/arcade/fighters/kunle/7.webp",
     "sha256": "fb871823ffbffea74b3ccc2a87244757524fb56d3ea0466ef3e472cd30b3a9bc",
     "bytes": 63172,
+    "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
+  },
+  {
+    "file": "public/arcade/fighters/kunle/8.webp",
+    "sha256": "f58036ebe5eed7a68bb6bbcbab4c00f0c45a541f190d794cb944ba4833863fca",
+    "bytes": 59528,
     "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
   },
   {
@@ -336,6 +360,12 @@
     "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
   },
   {
+    "file": "public/arcade/fighters/lazarus/8.webp",
+    "sha256": "4b6448356950bf4b00b070d72f23c5b3164255fa2b55e7eec9c3226aa6bc3b13",
+    "bytes": 55922,
+    "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
+  },
+  {
     "file": "public/arcade/fighters/musa/0.webp",
     "sha256": "5822e54a218e6140fc231fda360bbedd99527c3ff6d653668220140d47f6d182",
     "bytes": 47738,
@@ -384,6 +414,12 @@
     "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
   },
   {
+    "file": "public/arcade/fighters/musa/8.webp",
+    "sha256": "d8c8073bb49cd22f4f399b6c50c93010ca4d65fc8a5bdcd5a148ab538d7adaa8",
+    "bytes": 54406,
+    "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
+  },
+  {
     "file": "public/arcade/fighters/tunde/0.webp",
     "sha256": "2148056517c3efcac2e5c632251fc7d4c545fe69b8356ddeadc5c5d6171c29c0",
     "bytes": 51520,
@@ -429,6 +465,12 @@
     "file": "public/arcade/fighters/tunde/7.webp",
     "sha256": "a763519b2c8e73e8a6c4ebf1d6b475d8ca412bd0d63ec2f33dc7b659467a27d2",
     "bytes": 52352,
+    "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
+  },
+  {
+    "file": "public/arcade/fighters/tunde/8.webp",
+    "sha256": "41067dba271d19ea1e231116c12674fbcead9a3f31048775efecade7635547a5",
+    "bytes": 56064,
     "source": "Original OpenAI-generated Yaba Fight illustration, fixed-cell normalization, 2026-10-17"
   }
 ]

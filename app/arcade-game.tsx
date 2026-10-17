@@ -18,8 +18,14 @@ import {
   BookOpen,
   User,
   ChevronRight,
+  Lock,
 } from "lucide-react";
-import { ArcadeEngine, validateSave } from "../lib/arcade/engine.mjs";
+import {
+  ArcadeEngine,
+  validateSave,
+  unlockedStage,
+  ROUND_EXCHANGES,
+} from "../lib/arcade/engine.mjs";
 import { ArenaRenderer } from "../lib/arcade/render.mjs";
 import { ACTIONS, FIGHTERS, MAPS, PRESETS, KEYS } from "../lib/arcade/data.mjs";
 import { actionCost } from "../lib/arcade/combat.mjs";
@@ -87,7 +93,8 @@ export default function ArcadeGame() {
     [state, setState] = useState<Snapshot | null>(null),
     [name, setName] = useState(""),
     [level, setLevel] = useState(4),
-    [preview, setPreview] = useState(2),
+    [preview, setPreview] = useState(0),
+    [unlocked, setUnlocked] = useState(0),
     [save, setSave] = useState<Save | null>(null);
   const [modal, setModal] = useState(""),
     [paused, setPaused] = useState(false),
@@ -109,10 +116,7 @@ export default function ArcadeGame() {
     accountReturn = useRef(""),
     returnToPause = useRef(false),
     modalTrigger = useRef<HTMLElement | null>(null);
-  const progress = useRef<HTMLDivElement>(null),
-    clock = useRef<HTMLSpanElement>(null),
-    timing = useRef<HTMLSpanElement>(null),
-    snapshot = useRef(0),
+  const snapshot = useRef(0),
     messageTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tell = (text: string) => {
     setNotice(text);
@@ -158,6 +162,13 @@ export default function ArcadeGame() {
   useEffect(() => {
     const parsed = readSave();
     setSave(parsed);
+    setUnlocked(
+      unlockedStage(
+        storage.get("yf-arcade-unlocked"),
+        parsed,
+        storage.get("yf-arcade-cleared") === "true",
+      ),
+    );
     if (parsed) setLevel(parsed.level);
     setName(storage.get("yf-name") || "");
     try {
@@ -247,6 +258,7 @@ export default function ArcadeGame() {
                       : "select") as SoundCue,
             );
           if (event.type === "round") play(("round" + e.round) as SoundCue);
+          if (event.type === "fight") play("fight");
           if (event.type === "surge") play("charge");
           if (event.type === "notice") tell(event.text);
           if (event.type === "impact") {
@@ -276,6 +288,12 @@ export default function ArcadeGame() {
             if (!e.practice) {
               const checkpoint = e.checkpoint();
               if (e.won && e.stage < 6) checkpoint.stage++;
+              if (e.won)
+                setUnlocked((previous) => {
+                  const next = Math.max(previous, Math.min(6, e.stage + 1));
+                  storage.set("yf-arcade-unlocked", String(next));
+                  return next;
+                });
               if (e.phase === "complete") {
                 storage.set("yf-arcade-cleared", "true");
                 storage.set("yf-arcade-v2", "null");
@@ -290,33 +308,6 @@ export default function ArcadeGame() {
         if (e.serial !== snapshot.current) {
           snapshot.current = e.serial;
           setState(e.snapshot());
-        }
-        if (progress.current)
-          progress.current.style.transform = `scaleX(${e.phase === "tell" ? 1 - e.progress : 0})`;
-        if (clock.current)
-          clock.current.textContent =
-            e.phase === "tell"
-              ? `${((e.duration - (e.time - e.phaseStart)) / 1000).toFixed(1)}s`
-              : "";
-        if (timing.current) {
-          const inWindow =
-            e.phase === "tell" &&
-            ["jab", "heavy", "surge"].includes(e.intent) &&
-            e.duration - (e.time - e.phaseStart) <= 700;
-          timing.current.textContent = inWindow
-            ? "SLIP NOW"
-            : e.bossCharge
-              ? "WAIT FOR THE OPENING"
-              : (
-                  {
-                    jab: "GUARD OR SLIP OPPOSITE",
-                    heavy: "JAB INTERRUPTS POWER",
-                    block: "POWER CHIPS A GUARD",
-                    parry: "BAIT THE PARRY. BREATHE.",
-                    recover: "PUNISH THE BREATH.",
-                  } as Record<string, string>
-                )[e.intent] || "CHASE THE SLIP";
-          timing.current.dataset.window = String(inWindow);
         }
         sound.setActive(e.phase === "tell");
       }
@@ -387,12 +378,17 @@ export default function ArcadeGame() {
       },
       refresh,
       act: action,
+      audioCue: (cue: SoundCue) => audio.current?.play(cue),
     };
     return () => {
       delete target.__YABA_TEST__;
     };
   }, [action]);
   function start(stage = 0, practice = false, resume = false) {
+    if (stage > unlocked) {
+      tell("Beat the previous rival in Arcade to unlock this fight.");
+      return;
+    }
     modalRef.current = "";
     unlock();
     storage.set("yf-name", name.trim().slice(0, 18) || "Fighter");
@@ -444,8 +440,6 @@ export default function ArcadeGame() {
     over = !!state && ["fightOver", "complete"].includes(state.phase),
     player = state?.players[0],
     enemy = state?.players[1];
-  const attack = state && ["jab", "heavy", "surge"].includes(state.intent),
-    side = state?.lane === "left" ? "LEFT" : "RIGHT";
   const boards = (
     <div className="arena-boards">
       {["left-wall", "right-wall"].map((id, i) => {
@@ -609,7 +603,7 @@ export default function ArcadeGame() {
         <canvas
           ref={canvas}
           className="arena-canvas"
-          aria-label="Animated first-person fight. Read the attack indicator and use the move controls below."
+          aria-label="Animated first-person fight. Watch the hands and choose a move when ready."
           role="img"
         />
         {boards}
@@ -690,12 +684,20 @@ export default function ArcadeGame() {
               {FIGHTERS.map((f, i) => (
                 <button
                   key={f.id}
-                  aria-label={`Preview ${f.name}, ${f.title}`}
+                  aria-label={
+                    i > unlocked
+                      ? `Locked: ${f.name}. Beat ${FIGHTERS[i - 1].name} to unlock.`
+                      : `Preview ${f.name}, ${f.title}`
+                  }
+                  disabled={i > unlocked}
                   aria-pressed={preview === i}
                   onClick={() => setPreview(i)}
                 >
                   <img src={`/arcade/heads/${f.id}.webp`} alt="" />
                   <span>{i + 1}</span>
+                  {i > unlocked && (
+                    <Lock size={20} className="rival-lock" aria-hidden="true" />
+                  )}
                 </button>
               ))}
             </div>
@@ -710,32 +712,28 @@ export default function ArcadeGame() {
               </small>
             </div>
             {state!.phase === "tell" && (
-              <div
-                className={`attack-telegraph ${state!.intent === "surge" ? "voltage-tell" : ""}`}
-              >
-                <div>
-                  <span>
-                    {attack
-                      ? `${side} ${label(state!.intent)}`
-                      : `${fighter.name.toUpperCase()} · ${label(state!.intent)}`}
-                  </span>
-                  <span ref={clock} />
-                </div>
-                <div className="attack-clock">
-                  <i ref={progress} />
-                </div>
-                <small ref={timing}>READ THE HANDS</small>
+              <div className="decision-status">
+                <span>YOUR MOVE</span>
+                <small>Take your time.</small>
+                <span className="sr-only">
+                  {label(state!.intent)} from your {state!.lane}. Read the
+                  opponent's pose before choosing.
+                </span>
                 {state!.intent === "surge" && (
-                  <b>UNBLOCKABLE · SLIP {side === "LEFT" ? "RIGHT" : "LEFT"}</b>
+                  <b>VOLTAGE · GUARD WON'T STOP THIS</b>
                 )}
               </div>
             )}
-            {state!.phase === "intro" && (
+            {(state!.phase === "intro" || state!.phase === "ready") && (
               <div className="arena-announcement">
                 <small>
                   {fighter.name} · {fighter.title}
                 </small>
-                <strong>ROUND {state!.round}</strong>
+                <strong>
+                  {state!.phase === "ready"
+                    ? "FIGHT!"
+                    : `ROUND ${state!.round}`}
+                </strong>
                 <span>“{fighter.line}”</span>
               </div>
             )}
@@ -772,7 +770,7 @@ export default function ArcadeGame() {
                 </span>
               </div>
             )}
-            {!paused && state!.pending && state!.phase === "tell" && (
+            {!paused && state!.pending && state!.phase === "commit" && (
               <div className="committed-move">
                 {label(state!.pending)} COMMITTED
                 {state!.pending === "parry" ? " · 50% CHANCE" : ""}
@@ -785,13 +783,13 @@ export default function ArcadeGame() {
         <footer className="combat-deck">
           <div className="deck-readout">
             <span>
-              {(state!.beat ?? 0) > 12
+              {(state!.beat ?? 0) > ROUND_EXCHANGES
                 ? "OVERTIME · BOTH LOSE HEALTH"
                 : state!.phase === "tell"
-                  ? state!.pending
-                    ? "MOVE LOCKED · WATCH THE EXCHANGE"
-                    : "CHOOSE YOUR RESPONSE"
-                  : "RESET YOUR STANCE"}
+                  ? "WATCH HIS HANDS · CHOOSE WHEN READY"
+                  : state!.phase === "commit"
+                    ? "WATCH THE EXCHANGE"
+                    : "RESET YOUR STANCE"}
             </span>
             <button onClick={() => open("how")}>
               MOVE GUIDE <BookOpen size={13} />
@@ -810,6 +808,9 @@ export default function ArcadeGame() {
                   disabled={
                     state!.phase !== "tell" ||
                     !!state!.pending ||
+                    (state!.bossCharge &&
+                      state!.prepared &&
+                      ["jab", "recover"].includes(a.id)) ||
                     paused ||
                     player!.stamina < cost
                   }
@@ -855,9 +856,9 @@ export default function ArcadeGame() {
               );
             })}
             <span>
-              Opposite side.
+              Fist on left? Slip right.
               <br />
-              Last 700ms.
+              Fist on right? Slip left.
             </span>
           </div>
         </footer>
@@ -1015,10 +1016,36 @@ export default function ArcadeGame() {
                   between you and the Mainland crown.
                 </p>
                 <p className="rule-highlight">
-                  Read the incoming side. Slip in the{" "}
-                  <strong>opposite direction</strong> during the final{" "}
-                  <strong>700ms</strong>. A clean slip gives your next punch +8
-                  damage.
+                  There is no decision timer. Watch the opponent's hands, then
+                  choose a move. Your choice starts the exchange.
+                </p>
+                <div className="slip-lesson">
+                  <div>
+                    <img
+                      src="/arcade/fighters/kunle/8.webp"
+                      alt="Kunle draws back the fist on your left."
+                    />
+                    <p>Fist on your left?</p>
+                    <strong>
+                      Slip right <ArrowRight size={16} aria-hidden="true" />
+                    </strong>
+                  </div>
+                  <div>
+                    <img
+                      className="from-right"
+                      src="/arcade/fighters/kunle/8.webp"
+                      alt="Kunle draws back the fist on your right."
+                    />
+                    <p>Fist on your right?</p>
+                    <strong>
+                      <ArrowLeft size={16} aria-hidden="true" /> Slip left
+                    </strong>
+                  </div>
+                </div>
+                <p>
+                  A slip moves your head away from the punching hand. A clean
+                  slip avoids the hit and gives your next punch +8 damage. You
+                  do not have to time the button press.
                 </p>
                 <div className="move-guide">
                   {ACTIONS.map((a) => (
@@ -1039,10 +1066,12 @@ export default function ArcadeGame() {
                   hurts more.
                 </p>
                 <p>
-                  Jab interrupts power. Power chips a guard. After 12 exchanges,
+                  Jab interrupts power. Power chips a guard. After 30 exchanges,
                   a health lead decides the round; tied fighters enter
                   escalating overtime. The rooftop boss has a 3.6-second,
-                  unblockable voltage charge: prepare early, then slip late.
+                  unblockable voltage charge. Take one optional breath or jab,
+                  then choose a slip away from his punching hand. Take your
+                  time.
                 </p>
                 <button className="arcade-start" onClick={close}>
                   I GET IT <ArrowRight size={20} />
@@ -1118,19 +1147,11 @@ export default function ArcadeGame() {
                   />
                 </label>
                 <p>
-                  Higher levels give shorter tells and sharper pattern reading.
+                  Higher levels give sharper pattern reading and more defensive
+                  moves. You have unlimited time to choose at every difficulty.
                   Your rival chooses before your current input. Difficulty
                   applies when starting or continuing a fight.
                 </p>
-                <button
-                  className="arcade-start"
-                  onClick={() => {
-                    unlock();
-                    audio.current?.play("win");
-                  }}
-                >
-                  TEST VICTORY SOUND <Volume2 size={20} />
-                </button>
               </div>
             )}
             {modal === "practice" && (
@@ -1141,14 +1162,26 @@ export default function ArcadeGame() {
                 </p>
                 <div className="practice-grid">
                   {FIGHTERS.map((f, i) => (
-                    <button key={f.id} onClick={() => start(i, true)}>
+                    <button
+                      key={f.id}
+                      disabled={i > unlocked}
+                      onClick={() => start(i, true)}
+                    >
                       <img src={`/arcade/heads/${f.id}.webp`} alt="" />
                       <span>
                         <strong>{f.name}</strong>
                         <small>{f.title}</small>
-                        <em>{f.style}</em>
+                        <em>
+                          {i > unlocked
+                            ? `Beat ${FIGHTERS[i - 1].name} in Arcade to unlock.`
+                            : f.style}
+                        </em>
                       </span>
-                      <ArrowRight size={19} />
+                      {i > unlocked ? (
+                        <Lock size={19} />
+                      ) : (
+                        <ArrowRight size={19} />
+                      )}
                     </button>
                   ))}
                 </div>

@@ -9,8 +9,11 @@ import {
   ArcadeEngine,
   chooseIntent,
   validateSave,
+  unlockedStage,
+  ROUND_EXCHANGES,
 } from "../lib/arcade/engine.mjs";
 import { FIGHTERS } from "../lib/arcade/data.mjs";
+import { slipMotion } from "../lib/arcade/render.mjs";
 const resolve = (a, b, opts = {}) =>
   resolveExchange(freshFighter(), freshFighter(), a, b, opts);
 test("adaptive rivals only select moves they can afford", () => {
@@ -56,14 +59,15 @@ test("parry threshold is exactly 50% and power costs more", () => {
   assert.equal(actionCost("parry", "heavy", freshFighter()), 32);
   assert.equal(actionCost("parry", "jab", freshFighter()), 18);
 });
-test("only the opposite, timely slip avoids a punch", () => {
+test("the opposite slip avoids a punch without a timing gate", () => {
   for (const lane of ["left", "right"]) {
     const opposite = lane === "left" ? "dodge-right" : "dodge-left";
     const good = resolve(opposite, "heavy", { lane, remaining: 700 });
     assert.equal(good.damage[0], 0);
     assert.equal(good.players[0].counter, 8);
-    assert.ok(
-      resolve(opposite, "heavy", { lane, remaining: 701 }).damage[0] > 0,
+    assert.equal(
+      resolve(opposite, "heavy", { lane, remaining: 999999 }).damage[0],
+      0,
     );
     assert.ok(
       resolve("dodge-" + lane, "heavy", { lane, remaining: 400 }).damage[0] > 0,
@@ -138,7 +142,7 @@ test("AI learns from first observed move and does not inspect pending input", ()
   assert.equal(a.intent, b.intent);
   assert.equal(a.seed, b.seed);
 });
-test("pause freezes the clock; boss charge lasts 3600ms and resets per round", () => {
+test("pause freezes the clock; boss waits for a choice then charges for 3600ms", () => {
   const e = new ArcadeEngine({ stage: 6, seed: 3 });
   e.paused = true;
   e.update(100);
@@ -147,16 +151,19 @@ test("pause freezes the clock; boss charge lasts 3600ms and resets per round", (
   e.beat = 3;
   e.beginBeat();
   assert.equal(e.intent, "surge");
+  for (let i = 0; i < 1200; i++) e.update(100);
+  assert.equal(e.phase, "tell");
+  e.act(e.lane === "left" ? "dodge-right" : "dodge-left");
   assert.equal(e.duration, 3600);
   for (let i = 0; i < 35; i++) e.update(100);
-  assert.equal(e.phase, "tell");
+  assert.equal(e.phase, "commit");
   e.update(100);
   assert.equal(e.phase, "impact");
   e.retry();
   assert.equal(e.bossCharge, false);
   assert.equal(e.beat, 0);
 });
-test("boss preparation leaves the late dodge available", () => {
+test("boss preparation leaves an untimed directional dodge available", () => {
   const e = new ArcadeEngine({ stage: 6 });
   e.beat = 3;
   e.beginBeat();
@@ -170,7 +177,7 @@ test("boss preparation leaves the late dodge available", () => {
   assert.equal(e.pending, null);
   for (let i = 0; i < 30; i++) e.update(100);
   assert.equal(e.act(e.lane === "left" ? "dodge-right" : "dodge-left"), true);
-  for (let i = 0; i < 6; i++) e.update(100);
+  for (let i = 0; i < 36; i++) e.update(100);
   assert.equal(e.result.damage[0], 0);
 });
 test("campaign has seven fights and final completion does not carry special", () => {
@@ -188,7 +195,7 @@ test("campaign has seven fights and final completion does not carry special", ()
     } else assert.equal(e.phase, "complete");
   }
 });
-test("idle/mirror fights terminate and all resource bounds hold", () => {
+test("actively played mirror fights terminate and all resource bounds hold", () => {
   for (let seed = 1; seed <= 30; seed++) {
     const e = new ArcadeEngine({ seed, level: 10 });
     let i = 0;
@@ -216,4 +223,78 @@ test("invalid or corrupted save cannot select an out-of-range fighter", () => {
     }),
     { version: 2, stage: 1, level: 4, history: ["jab"], wins: 0 },
   );
+});
+
+test("decision time never attacks or advances while a player is thinking", () => {
+  for (let level = 1; level <= 10; level++) {
+    const e = new ArcadeEngine({ level });
+    e.beginBeat();
+    const before = JSON.stringify(e.players);
+    for (let n = 0; n < 1200; n++) e.update(100);
+    assert.equal(e.phase, "tell");
+    assert.equal(e.beat, 1);
+    assert.equal(JSON.stringify(e.players), before);
+    assert.equal(e.act("heavy"), true);
+    assert.equal(e.phase, "commit");
+    for (let n = 0; n < 9; n++) e.update(100);
+    assert.equal(e.phase, "impact");
+    assert.notEqual(e.result.moves[0], "late");
+  }
+});
+test("each round separates the round announcement from Fight and input", () => {
+  const e = new ArcadeEngine();
+  for (let round = 1; round <= 3; round++) {
+    e.round = round;
+    e.startRound();
+    e.drain();
+    for (let n = 0; n < 29; n++) e.update(100);
+    assert.equal(e.phase, "intro");
+    assert.deepEqual(e.drain(), []);
+    e.update(100);
+    assert.equal(e.phase, "ready");
+    assert.equal(e.drain()[0].type, "fight");
+    for (let n = 0; n < 12; n++) e.update(100);
+    assert.equal(e.phase, "tell");
+  }
+});
+test("round score limit is thirty exchanges rather than twelve", () => {
+  const e = new ArcadeEngine();
+  e.players[1].hp = 90;
+  e.beat = 12;
+  e.setPhase("impact", 1);
+  e.update(2);
+  assert.equal(e.phase, "tell");
+  e.beat = ROUND_EXCHANGES;
+  e.setPhase("impact", 1);
+  e.update(2);
+  assert.equal(e.phase, "roundOver");
+});
+test("slips move immediately, stay through contact, then return to stance", () => {
+  for (const [action, direction] of [
+    ["dodge-left", -1],
+    ["dodge-right", 1],
+  ]) {
+    const e = new ArcadeEngine();
+    e.beginBeat();
+    e.act(action);
+    e.update(100);
+    e.update(100);
+    assert.equal(Math.sign(slipMotion(e)), direction);
+    for (let n = 0; n < 7; n++) e.update(100);
+    assert.equal(e.phase, "impact");
+    assert.equal(slipMotion(e), direction);
+    for (let n = 0; n < 4; n++) e.update(100);
+    assert.equal(slipMotion(e), direction);
+    for (let n = 0; n < 4; n++) e.update(100);
+    assert.equal(Math.abs(slipMotion(e)), 0);
+  }
+});
+test("fresh saves lock six rivals; reached checkpoints and earned unlocks survive", () => {
+  assert.equal(unlockedStage(null, null), 0);
+  assert.equal(unlockedStage("invalid", null), 0);
+  assert.equal(unlockedStage("99", null), 0);
+  assert.equal(unlockedStage("2", null), 2);
+  assert.equal(unlockedStage(null, { version: 2, stage: 3, level: 4 }), 3);
+  assert.equal(unlockedStage("4", { version: 2, stage: 1, level: 4 }), 4);
+  assert.equal(unlockedStage(null, null, true), 6);
 });

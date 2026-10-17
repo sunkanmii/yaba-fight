@@ -177,7 +177,7 @@ try {
         { hp: 100, stamina: 100, guards: 0, exposed: 0, counter: 0 },
         { hp: 100, stamina: 100, guards: 0, exposed: 0, counter: 0 },
       ];
-      e.setPhase("tell", 1800);
+      e.setPhase("commit", 850);
       e.intent = move;
       e.pending = move;
       e.inputAt = e.time - 270;
@@ -235,7 +235,7 @@ try {
   });
   await page.waitForTimeout(70);
   await page.screenshot({ path: "artifacts/arcade/boss-voltage.png" });
-  await expect(page.getByText(/UNBLOCKABLE · SLIP/)).toBeVisible();
+  await expect(page.getByText(/VOLTAGE.*GUARD/)).toBeVisible();
   // Drive the actual browser simulation through the ladder with rule-aware inputs.
   // This verifies transitions and finite play, not human difficulty or retention.
   const campaign = await page.evaluate(() => {
@@ -252,28 +252,19 @@ try {
       let ticks = 0;
       while (!["fightOver", "complete"].includes(e.phase) && ticks++ < 5000) {
         if (e.phase === "tell" && !e.pending) {
-          const left = e.duration - (e.time - e.phaseStart),
-            st = e.players[0].stamina;
+          const st = e.players[0].stamina;
           if (e.intent === "surge") {
-            if (left > 1000 && !e.prepared) e.act("recover");
-            if (left <= 600)
-              e.act(
-                st >= 14
-                  ? e.lane === "left"
-                    ? "dodge-right"
-                    : "dodge-left"
-                  : "recover",
-              );
-          } else if (e.intent === "jab") {
-            if (left <= 550)
-              e.act(
-                st >= 14
-                  ? e.lane === "left"
-                    ? "dodge-right"
-                    : "dodge-left"
-                  : "recover",
-              );
-          } else
+            if (!e.prepared) e.act("recover");
+            e.act(e.lane === "left" ? "dodge-right" : "dodge-left");
+          } else if (e.intent === "jab")
+            e.act(
+              st >= 14
+                ? e.lane === "left"
+                  ? "dodge-right"
+                  : "dodge-left"
+                : "recover",
+            );
+          else
             e.act(
               e.intent === "heavy" && st >= 12
                 ? "jab"

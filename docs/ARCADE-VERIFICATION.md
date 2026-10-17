@@ -4,7 +4,7 @@ The release keeps the existing Worker, database, account secret and host. Online
 
 ## Automated rules and lifecycle checks
 
-`npm test`: 40 tests covering the new arcade resolver/engine, existing combat regressions and actual Worker handlers with mocked bindings. Cases include matching-move zero-damage outcomes, exact 50% parry threshold, higher power-parry cost, dodge direction/timing, fatigue, guard break, counter consumption, late power, bounded stamina, AI affordability and input independence, pause, seven-fight progression, finite passive play, boss charge/reset and corrupted checkpoints. Offline-switch tests fail immediately if a room request touches a cloud binding.
+`npm test`: 45 tests covering the new arcade resolver/engine, existing combat regressions and actual Worker handlers with mocked bindings. Cases include matching-move zero-damage outcomes, exact 50% parry threshold, higher power-parry cost, directional dodges without a timing gate, fatigue, guard break, counter consumption, prepared power, bounded stamina, AI affordability and input independence, pause, seven-fight progression, finite actively played mirror exchanges, boss charge/reset and corrupted checkpoints. Offline-switch tests fail immediately if a room request touches a cloud binding.
 
 TypeScript, Cloudflare type checking, the static production build and Wrangler dry run pass. The release does not change the D1 schema or signing secret.
 
@@ -25,3 +25,7 @@ Screenshots and JSON receipts are kept in ignored `artifacts/arcade/`. Asset man
 ## Remaining real-world evidence
 
 Physical iOS/Android devices, difficult mobile connections, new-player comprehension and repeat play still need human testing. The release offers a stronger set of readable decisions; automated tests cannot establish enjoyment. There is no audience/revenue claim. Online play, cloud arcade checkpoint sync, friend lists, email recovery and automatic sponsor payment remain deferred. The owner chooses any future subdomain.
+
+## Player-paced follow-up
+
+`tests/arcade-clarity.mjs` exercises actual left/right button input, distinct illustrated jab sides, no decision clock or move-name panel, held dodge/contact feedback, fresh-save and Practice locks, next-fighter unlock persistence across reload/new run, and absence of the sound-test control. A Web Audio source spy measures the end-to-start announcer gaps for Round 1, 2 and 3, requiring at least 1.25 seconds in each case. Unit checks hold decisions for two simulated minutes at every difficulty without an automatic attack or health change, and keep a health lead alive after exchange 12 until the new 30-exchange limit. The existing full browser campaign and audio volume/pause checks also pass after the pacing change. Desktop/phone captures and timing receipts live in ignored `artifacts/clarity/`.

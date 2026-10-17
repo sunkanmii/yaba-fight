@@ -61,14 +61,14 @@ try {
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByLabel("Play the original percussion soundtrack").uncheck();
   await page.getByLabel("Mute all audio").check();
-  await page.getByRole("button", { name: "TEST VICTORY SOUND" }).click();
+  await page.evaluate(() => window.__YABA_TEST__.audioCue("win"));
   await page.waitForTimeout(120);
   assert.ok(
     (await energy()) < 0.00001,
     "master mute must silence samples and music",
   );
   await page.getByLabel("Mute all audio").uncheck();
-  await page.getByRole("button", { name: "TEST VICTORY SOUND" }).click();
+  await page.evaluate(() => window.__YABA_TEST__.audioCue("win"));
   await page.waitForTimeout(100);
   assert.ok(
     (await energy()) > 0.00001,

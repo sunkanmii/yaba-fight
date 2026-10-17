@@ -12,6 +12,7 @@
     "test:online": "node scripts/online-paused.mjs",
     "test:browser": "node tests/arcade-browser.mjs",
     "test:audio": "node tests/arcade-audio.mjs",
+    "test:clarity": "node tests/arcade-clarity.mjs",
     "cloudflare:build": "node scripts/build-cloudflare.mjs",
     "cloudflare:dev": "wrangler dev --port 8787",
     "cloudflare:types": "wrangler types --include-runtime=false",
