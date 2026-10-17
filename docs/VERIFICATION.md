@@ -2,7 +2,8 @@
 
 Live deployment: https://yaba-fight.sunkanmifafowora.workers.dev
 
-Current account/strategy release: `61e9c118-7368-4c9c-9b7e-0bba328191bf`.
+Account/strategy release: `61e9c118-7368-4c9c-9b7e-0bba328191bf`.
+Alarm lifecycle hotfix: `f786cc2a-b994-40c7-8ba7-9cdee6b42774`.
 
 Passed:
 
@@ -38,3 +39,11 @@ The checks below supersede the former five-move and anonymous-identity results a
 Disposable production test accounts and their database enquiries/results are removed by the tests. No real-user data is deleted. Only the existing workers.dev deployment is used; no domain or DNS choice was made.
 
 The phone checks use Chrome viewport simulation. Physical-device/real congested mobile-network checks, production load tests and retention studies have not been performed. Password recovery and online payments remain deliberately deferred. The game remains a beta; see the current release notes for its actual features and limits.
+
+## Alarm lifecycle regression
+
+Leaving a room during an active turn previously retained its deadline. Once closed, the alarm handler skipped combat resolution and rescheduled that past deadline, which could cause a rapid cloud alarm loop after the players had gone.
+
+The hotfix clears the deadline when leaving, schedules only the bounded room expiry, cancels alarms while disposing of closed/expired rooms, and repairs obsolete deadlines in round-over rooms. Five tests execute the actual Worker handlers locally with a mocked runtime. The three relevant regressions were also run against the previous committed Worker and failed, reproducing the defect. All 17 unit tests pass with the fix, as does the Worker type check.
+
+This verification does not create live rooms or consume Durable Object requests. No further live multiplayer test traffic was generated during quota containment. The code fix cannot restore a quota already consumed; runtime verification after quota availability resumes is separate from these local regression results.

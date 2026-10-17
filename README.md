@@ -6,7 +6,7 @@ A mobile-friendly first-person sparring game built with Next.js and Cloudflare. 
 
 ## Run the complete game locally
 
-Requires Node.js 22 or later. Cloudflare's local runtime provides the account database, room coordination and timers.
+Requires Node.js 22.18 or later. Cloudflare's local runtime provides the account database, room coordination and timers.
 
 ```sh
 npm ci

@@ -31,13 +31,13 @@ export class FightRoom extends DurableObject<Env>{
   if(msg.event==='move'){const d=msg.data;if(!d||typeof d!=='object'||typeof d.move!=='string'||!MOVES.includes(d.move)||d.exchange!==r.state.exchange||r.players.length!==2||r.state.roundOver||r.moves[seat]!==null)return;r.moves[seat]=d.move;if(r.moves.every(Boolean)){r.state=advanceMatch(r.state,r.moves[0],r.moves[1]);r.moves=[null,null];r.missed=[0,0];this.armTurn();this.recordResult()}this.persist();this.broadcast();}
   else if(msg.event==='next-round'&&r.state.roundOver&&!r.state.finished){if(!r.ready.includes(a.token))r.ready.push(a.token);if(r.ready.length===2){r.state=nextRound(r.state);r.ready=[];r.missed=[0,0];this.armTurn();this.persist();this.broadcast()}else{this.persist();this.send(ws,'notice','Waiting for your opponent to continue…')}}
   else if(msg.event==='chat'&&typeof msg.data==='string'&&now-r.players[seat].lastChat>=900){const text=msg.data.trim().slice(0,180);if(text){r.players[seat].lastChat=now;this.persist();for(const client of this.ctx.getWebSockets())this.send(client,'chat',{name:r.players[seat].name,text})}}
-  else if(msg.event==='leave-room'){r.closed=true;this.persist();for(const client of this.ctx.getWebSockets()){this.send(client,'opponent-left');client.close(1000,'Room closed')}}
+  else if(msg.event==='leave-room'){r.closed=true;r.deadline=0;this.persist();this.ctx.waitUntil(this.ctx.storage.setAlarm(r.expires));for(const client of this.ctx.getWebSockets()){this.send(client,'opponent-left');client.close(1000,'Room closed')}}
  }
  webSocketClose(){if(this.room?.closed)return;for(const client of this.ctx.getWebSockets())this.send(client,'notice','A fighter disconnected. Their seat is held for reconnection.');}
  webSocketError(ws:WebSocket){ws.close(1011,'Connection error')}
  async alarm(){
   const r=this.room;if(!r)return;
-  if(r.expires<=Date.now()){for(const ws of this.ctx.getWebSockets()){this.send(ws,'opponent-left');ws.close(1000,'Room expired')}this.room=null;await this.ctx.storage.deleteAll();return}
+  if(r.closed||r.expires<=Date.now()){for(const ws of this.ctx.getWebSockets()){this.send(ws,'opponent-left');ws.close(1000,'Room ended')}await this.ctx.storage.deleteAlarm();this.room=null;await this.ctx.storage.deleteAll();return}
   if(r.deadline&&r.deadline<=Date.now()&&!r.state.roundOver&&!r.closed){
    r.missed=r.moves.map((m,i)=>m?0:(r.missed?.[i]||0)+1);
    if(r.missed.every(n=>n>=3)){r.closed=true;for(const ws of this.ctx.getWebSockets()){this.send(ws,'opponent-left');ws.close(1000,'Both fighters inactive')}}
@@ -49,7 +49,12 @@ export class FightRoom extends DurableObject<Env>{
     this.recordResult();
    }
    this.armTurn();this.persist();this.broadcast();
-  }else await this.ctx.storage.setAlarm(r.deadline||r.expires);
+  }else{
+   // An obsolete deadline must never be rescheduled in the past. This also
+   // repairs objects persisted by earlier deployments after a round ended.
+   if(r.state.roundOver||r.deadline&&r.deadline<=Date.now()){r.deadline=0;this.persist()}
+   await this.ctx.storage.setAlarm(r.deadline||r.expires);
+  }
  }
 }
 
