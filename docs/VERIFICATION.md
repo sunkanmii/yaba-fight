@@ -2,6 +2,8 @@
 
 Live deployment: https://yaba-fight.sunkanmifafowora.workers.dev
 
+Current account/strategy release: `61e9c118-7368-4c9c-9b7e-0bba328191bf`.
+
 Passed:
 
 - Five combat unit tests: counter relationships, all symmetric move combinations, full three-round draws, knockouts, and adaptation using only past choices.
@@ -20,4 +22,19 @@ Passed:
 - Effects and music use separate gain paths. The original beat schedules against the audio clock; no new audio asset downloads or third-party providers are required.
 - Research, design decisions, timing, and limitations are recorded in `COMBAT-RESEARCH.md`.
 
-The phone checks use Chrome viewport simulation; a physical-device/real mobile network test and production load test have not been performed. Reconnection checks cover temporary transport interruption while the same page stays open, not full-page reload or browser storage recovery. The deployment is a beta, with the launch limitations described in the product notes.
+## Account and strategy release
+
+The checks below supersede the former five-move and anonymous-identity results above.
+
+- Twelve combat unit tests passed: all counter combinations, symmetry, finite rounds, stamina bounds, consecutive guard costs, guard shatter, missed-parry exposure, successful-parry refunds, recovery vulnerability and resource-aware adaptive bots.
+- Next.js static production build, frontend TypeScript and Worker binding/type checks passed. Worker deployment dry run passed (about 383 KiB compressed).
+- Production account API checks passed: signup without email verification, case-insensitive username reservation, HttpOnly secure session cookies, wrong-password rejection, return login, disabled recovery endpoint, account deletion and validated sponsor requests saved in D1.
+- Production multiplayer integration passed with independent authenticated browsers: authoritative usernames, no self-pairing, two-seat capacity, hidden pending moves, duplicate rejection, resource resolution, parry punishment, chat and reconnect. All three rounds completed and the completed match appeared in the account's D1 online record.
+- Actual production alarms resolved missing inputs at the 15-second deadline. A separate live test exercised three consecutive missed deadlines and verified an authoritative forfeit.
+- Production UI playthrough passed: account creation form, human-first menu, bot practice while remaining in the public queue, automatic switch when the second human joined, page reload recovering the fight and account, chat, keyboard controls, stamina recovery and a complete three-round practice match.
+- Browser audio output checks passed: gesture-only start, nonzero original music, independent mutes, effect output, hidden-tab suspension, saved settings and playable audio failure fallback.
+- Rendered layouts were inspected at 360×640, 375×667, 390×844/900, 768×900, 1024×900, 1440×900 and 844×390. No document overflow at the established breakpoints; all six controls fit. Each rival's loaded artwork was inspected separately. Account dialogs support scrolling on short screens.
+
+Disposable production test accounts and their database enquiries/results are removed by the tests. No real-user data is deleted. Only the existing workers.dev deployment is used; no domain or DNS choice was made.
+
+The phone checks use Chrome viewport simulation. Physical-device/real congested mobile-network checks, production load tests and retention studies have not been performed. Password recovery and online payments remain deliberately deferred. The game remains a beta; see the current release notes for its actual features and limits.

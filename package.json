@@ -8,6 +8,10 @@
     "start": "cross-env NODE_ENV=production node server.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
+    "test:accounts": "node tests/accounts.mjs",
+    "test:online": "node tests/multiplayer.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "test:audio": "node tests/audio.mjs",
     "cloudflare:build": "node scripts/build-cloudflare.mjs",
     "cloudflare:dev": "wrangler dev --port 8787",
     "cloudflare:types": "wrangler types --include-runtime=false",
@@ -15,7 +19,9 @@
     "cloudflare:deploy": "npm run cloudflare:build && wrangler deploy"
   },
   "dependencies": {
+    "better-auth": "^1.7.10",
     "cross-env": "^7.0.3",
+    "drizzle-orm": "^0.45.4",
     "lucide-react": "^0.468.0",
     "next": "^16.4.2",
     "react": "^19.1.0",

@@ -3,12 +3,14 @@
   "name": "yaba-fight",
   "main": "cloudflare/worker.ts",
   "compatibility_date": "2026-10-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [{"binding":"DB","database_name":"yaba-fight-players","database_id":"50276f06-f150-4179-ac1b-ba040aff9de9","migrations_dir":"cloudflare/migrations"}],
   "assets": {"directory": "./out", "binding": "ASSETS", "run_worker_first": ["/api/*"]},
   "durable_objects": {"bindings": [
     {"name": "FIGHT_ROOMS", "class_name": "FightRoom"},
     {"name": "MATCHMAKER", "class_name": "Matchmaker"}
   ]},
   "migrations": [{"tag": "v1", "new_sqlite_classes": ["FightRoom", "Matchmaker"]}],
-  "ratelimits": [{"name": "ROOM_LIMITER", "namespace_id": "1001", "simple": {"limit": 30, "period": 60}}],
+  "ratelimits": [{"name": "ROOM_LIMITER", "namespace_id": "1001", "simple": {"limit": 30, "period": 60}},{"name":"AUTH_LIMITER","namespace_id":"1002","simple":{"limit":10,"period":60}}],
   "observability": {"enabled": true, "head_sampling_rate": 0.1, "traces": {"enabled": true, "head_sampling_rate": 0.1}}
 }

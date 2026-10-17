@@ -19,3 +19,14 @@ Targeted edit prompt: “Remove all background glow, shadows, haze, gradients, a
 Final generation prompt: “Use first input as precise pose and camera reference only. Second input is brown skin green wrap ink comic style reference only. Generate a true transparent PNG overlay showing only the player's two bare fists and forearms in first person matching the reference's lowered boxing guard. Top 70 percent empty transparent. Left forearm enters bottom and angles up and inward right about 35 degrees from horizontal, ending near 36 percent width. Right forearm mirrors it, ending near 64 percent width. Topmost knuckles around 73.5 percent down frame. Wide open space between fists. Knuckles face forward, thumbs inward, view back of hands. Brown Nigerian skin, green wrist wraps, hand-drawn cel-shaded ink. Elbows invisible. Not upright, not at screen edges, not at eye level. No opponent, background, text, UI, haze, or glow.”
 
 CSS places this original guard low in the arena and moves each half for attacks and defence. The game serves alpha-preserving WebP copies of the guard halves and opponent (about 157 KB combined); the PNG originals remain available. The courtyard is original SVG, and sounds are local Web Audio synthesis. Barlow Condensed and DM Sans are self-hosted under their included SIL Open Font Licenses, so no runtime requests go to Google Fonts.
+
+
+## Distinct rivals
+
+`lazarus.webp` and `sade.webp` are new transparent character sprites generated on 17 October 2026 with the original Tunde illustration as the style reference. They use separate faces, silhouettes and outfits rather than CSS recolouring.
+
+Lazarus prompt: original Nigerian counter-fighter in his late 40s, lean build, salt-and-pepper beard, close-cropped hair, eyebrow scar, calm knowing gaze, teal sleeveless vest and cream wraps. Waist-up front-facing raised boxing guard, thick ink outlines and warm cel shading, transparent background, no text or logos.
+
+Sade prompt: original athletic Nigerian woman, braided cornrows, sharp cheekbones, confident direct gaze, maroon jersey with cream piping and mustard wraps. Waist-up front-facing aggressive boxing guard, matching ink and shading, transparent background, no text or logos.
+
+The generated PNGs were inspected and encoded as alpha-preserving WebP at at most 650 × 975. Existing player-hand geometry and artwork remain unchanged. No external artist's game sprites or YouTube footage are used.

@@ -1,5 +1,5 @@
 /** Original, sample-free arcade audio. No network requests or microphone access. */
-export type SoundCue='select'|'jab'|'heavy'|'block'|'parry'|'feint'|'hurt'|'bell'|'win'|'lose';
+export type SoundCue='select'|'jab'|'heavy'|'block'|'parry'|'feint'|'hurt'|'bell'|'win'|'lose'|'recover'|'miss';
 export class FightAudio {
  private ctx:AudioContext|null=null;private fx:GainNode|null=null;private musicBus:GainNode|null=null;private duck:GainNode|null=null;private noiseBuffer:AudioBuffer|null=null;
  private ticker:ReturnType<typeof setInterval>|null=null;private step=0;private nextBeat=0;private musicEnabled=false;private musicVolume=.35;private effectsVolume=.75;private active=false;private disposed=false;
@@ -14,6 +14,8 @@ export class FightAudio {
   if(cue==='block'){this.noise(.1,.44,420,t,fx);this.tone(270,110,.12,.24,t,fx,'triangle');}
   if(cue==='parry'){this.noise(.05,.28,2400,t,fx);[780,1170,1560].forEach((n,i)=>this.tone(n,n*.97,.24,.12/(i+1),t+i*.015,fx,'triangle'));}
   if(cue==='feint'){this.noise(.17,.5,1700,t,fx,-.35);this.tone(430,710,.13,.13,t+.04,fx,'triangle',.35);}
+  if(cue==='recover'){this.noise(.32,.12,900,t,fx);this.tone(220,330,.26,.1,t+.06,fx,'sine');}
+  if(cue==='miss'){this.noise(.1,.24,600,t,fx);this.tone(240,95,.2,.18,t,fx,'triangle');}
   if(cue==='bell'){[620,1240,1710].forEach((n,i)=>this.tone(n,n*.998,.8,.22/(i+1),t,fx,'sine'));}
   if(cue==='win'||cue==='lose'){const notes=cue==='win'?[330,415,494,660]:[330,294,247,220];notes.forEach((n,i)=>this.tone(n,n,.25,.22,t+i*.12,fx,'triangle'));}
   if(this.duck){this.duck.gain.cancelScheduledValues(t);this.duck.gain.setValueAtTime(.38,t);this.duck.gain.setTargetAtTime(1,t+.12,.14);}

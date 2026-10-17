@@ -8,3 +8,4 @@ playwright-report/
 artifacts/
 out/
 .wrangler/
+.dev.vars
