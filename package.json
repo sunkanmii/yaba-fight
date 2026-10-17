@@ -1,0 +1,35 @@
+{
+  "name": "yaba-fight",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "next build",
+    "start": "cross-env NODE_ENV=production node server.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs",
+    "cloudflare:build": "node scripts/build-cloudflare.mjs",
+    "cloudflare:dev": "wrangler dev --port 8787",
+    "cloudflare:types": "wrangler types --include-runtime=false",
+    "cloudflare:check": "tsc -p cloudflare/tsconfig.json",
+    "cloudflare:deploy": "npm run cloudflare:build && wrangler deploy"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "lucide-react": "^0.468.0",
+    "next": "^16.4.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261016.1",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.151.1"
+  }
+}
