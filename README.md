@@ -46,9 +46,13 @@ This deploys `yaba-fight`, static assets, and two Durable Object namespaces to t
 
 Use J / K / L / P / F or the touch buttons for jab, power, block, parry, and feint. Moves reveal when both fighters submit. All three rounds are played. A round ends at 0 HP or after ten exchanges, when remaining HP decides the result. Equal round wins means a draw.
 
+Jab interrupts power; parry counters jab; power breaks parry; feint punishes block/parry. Each exchange has a visible lock, reveal, and recovery with named outcomes, HP trails, and separate impact cues. The full-screen title menu and fight HUD replace the former webpage layout. Settings provide independent music/effects levels, a sound test, and impact-shake control. The original synthesized percussion/bass loop starts after interaction and pauses with a hidden tab.
+
 For online play, use two independent browser profiles: set names, create a room in one, join its six-character code in the other. Chat appears when both connect. Public matching never assigns bots. Reconnects retain a seat while the page remains open; a full reload creates a new anonymous identity.
 
 `node tests/multiplayer.mjs` tests a running Cloudflare dev server. Set `TEST_URL` for another port or deployment. It checks room capacity, hidden choices, duplicate prevention, damage, chat, reconnect, invalid codes, and human matchmaking. `scripts/visual-check.mjs` uses Playwright; set `CHROME_PATH` and `TEST_URL` for your environment.
+
+`node tests/audio.mjs` measures actual Web Audio output, separate mutes, gesture-only start, and saved settings. [Combat research](docs/COMBAT-RESEARCH.md) links the reviewed sources and explains the timing, balance, visual, and audio changes.
 
 ## Beta limits
 

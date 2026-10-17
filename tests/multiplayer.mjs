@@ -18,7 +18,8 @@ a.send('move',{move:'jab',exchange:0});const pending=await b.next(m=>m.event==='
 a.send('move',{move:'heavy',exchange:0});b.send('move',{move:'parry',exchange:0});const result=await a.next(m=>m.event==='match'&&m.data.state.exchange===1);assert.deepEqual(result.data.state.hp,[82,100]);assert.deepEqual(result.data.state.last.moves,['jab','parry']);
 b.send('chat','Good hands!');await a.next(m=>m.event==='chat'&&m.data.text==='Good hands!');
 a.ws.close();await new Promise(r=>setTimeout(r,100));const recovered=connect(room.code,aToken);const snapshot=await recovered.next(m=>m.event==='match');assert.equal(snapshot.data.state.exchange,1);assert.deepEqual(snapshot.data.state.hp,[82,100]);
+recovered.send('move',{move:'jab',exchange:1});b.send('move',{move:'heavy',exchange:1});const interruption=await recovered.next(m=>m.event==='match'&&m.data.state.exchange===2);assert.deepEqual(interruption.data.state.hp,[82,86]);
 const invalid=await enter('join-room','Nobody',crypto.randomUUID(),'FFFFFF');assert.equal(invalid.status,404);
 recovered.send('leave-room');await b.next(m=>m.event==='opponent-left');recovered.ws.close();b.ws.close();
 const cToken=crypto.randomUUID(),dToken=crypto.randomUUID();const queued=await enter('find-match','Chika',cToken);const c=connect(queued.code,cToken);await c.next(m=>m.event==='match');const paired=await enter('find-match','Dami',dToken);assert.equal(paired.code,queued.code);const d=connect(paired.code,dToken);await c.next(m=>m.event==='match'&&m.data.players.length===2);await d.next(m=>m.event==='match');c.send('leave-room');await d.next(m=>m.event==='opponent-left');c.ws.close();d.ws.close();
-console.log('PASS: friend rooms, capacity, hidden choices, duplicate prevention, server damage, chat, reconnect, invalid codes, and human matchmaking.');
+console.log('PASS: friend rooms, capacity, hidden choices, duplicate prevention, server damage, jab interrupts power, chat, reconnect, invalid codes, and human matchmaking.');
