@@ -9,14 +9,17 @@ registerHooks({resolve(specifier,context,next){
  if(specifier==='./auth')return {url:'data:text/javascript,export const createAuth=()=>{}; export const fighterName=()=>{};',shortCircuit:true};
  return next(specifier,context);
 }});
-const {FightRoom}=await import(process.env.ALARM_TEST_SOURCE||'../cloudflare/worker.ts');
+const {FightRoom,default:worker}=await import(process.env.ALARM_TEST_SOURCE||'../cloudflare/worker.ts');
 const NOW=1_800_000_000_000;
-function fixture(changes={}){
+function fixture(changes={},enabled=true){
  const room={code:'ABCDEF',players:[{token:'player-a',name:'Ada',lastChat:0},{token:'player-b',name:'Bayo',lastChat:0}],state:freshMatch(),moves:[null,null],ready:[],expires:NOW+3*60*60*1000,closed:false,deadline:NOW+15000,missed:[0,0],...changes};
  const calls={alarms:[],deleteAll:0,deleteAlarm:0,persisted:null};const pending=[];
  const ctx={storage:{sql:{exec(sql,...args){if(sql.startsWith('SELECT'))return {toArray:()=>[{data:JSON.stringify(room)}]};if(sql.startsWith('INSERT'))calls.persisted=JSON.parse(args[0]);return {toArray:()=>[]}}},async setAlarm(time){calls.alarms.push(time)},async deleteAlarm(){calls.deleteAlarm++},async deleteAll(){calls.deleteAll++}},waitUntil(p){pending.push(p)},getWebSockets(){return []}};
- const object=new FightRoom(ctx,{});return {object,calls,flush:()=>Promise.all(pending)};
+ const object=new FightRoom(ctx,{ONLINE_PLAY_ENABLED:enabled?'true':'false'});return {object,calls,flush:()=>Promise.all(pending)};
 }
+
+test('offline switch retires an existing room without scheduling a new alarm',async t=>{t.mock.method(Date,'now',()=>NOW);const f=fixture({},false);await f.object.alarm();await f.flush();assert.equal(f.calls.deleteAlarm,1);assert.equal(f.calls.deleteAll,1);assert.deepEqual(f.calls.alarms,[])});
+test('offline room and websocket requests never touch a Durable Object or authentication',async()=>{const touch=()=>{throw new Error('Cloud binding was touched')};const env={ONLINE_PLAY_ENABLED:'false',FIGHT_ROOMS:{getByName:touch},MATCHMAKER:{getByName:touch},DB:{prepare:touch},AUTH_LIMITER:{limit:touch}};for(const path of ['/api/rooms','/api/ws/ABCDEF']){const response=await worker.fetch(new Request('https://game.example'+path,{method:'POST'}),env);assert.equal(response.status,503);assert.equal((await response.json()).code,'ONLINE_PAUSED')}});
 test('closed room with a past deadline is cleaned up without rearming an alarm',async t=>{
  t.mock.method(Date,'now',()=>NOW);const f=fixture({closed:true,deadline:NOW-5000});await f.object.alarm();await f.flush();assert.equal(f.calls.deleteAll,1);assert.equal(f.calls.deleteAlarm,1);assert.deepEqual(f.calls.alarms,[]);await f.object.alarm();assert.deepEqual(f.calls.alarms,[]);
 });

@@ -31,6 +31,7 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
+    "artifacts",
     "node_modules",
     "cloudflare",
     "worker-configuration.d.ts"

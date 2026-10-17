@@ -1,0 +1,82 @@
+[
+  {
+    "file": "jab.ogg",
+    "archive_file": "Audio/impactPunch_medium_000.ogg",
+    "source": "https://kenney.nl/assets/impact-sounds",
+    "license": "CC0-1.0",
+    "sha256": "486988aa2d6440ffc4c62a0e8ccf3c23673ba84424bd4723378d451b7255eb5c",
+    "bytes": 8800
+  },
+  {
+    "file": "heavy.ogg",
+    "archive_file": "Audio/impactPunch_heavy_002.ogg",
+    "source": "https://kenney.nl/assets/impact-sounds",
+    "license": "CC0-1.0",
+    "sha256": "7993dd4c156b9979ad69f17be5ebe31850b16039a3857f8477141be54dfee1b3",
+    "bytes": 9025
+  },
+  {
+    "file": "guard.ogg",
+    "archive_file": "Audio/impactSoft_heavy_000.ogg",
+    "source": "https://kenney.nl/assets/impact-sounds",
+    "license": "CC0-1.0",
+    "sha256": "49e7ca88743fca974bb8676ea138b751cfd8f9033b5e7af8736c2a215d6edbc1",
+    "bytes": 6570
+  },
+  {
+    "file": "bell.ogg",
+    "archive_file": "Audio/impactBell_heavy_000.ogg",
+    "source": "https://kenney.nl/assets/impact-sounds",
+    "license": "CC0-1.0",
+    "sha256": "94b8bb5f2d43ab65e4bcc32b28562416e9bc2c51d9fd4be1e333660ee52f977f",
+    "bytes": 13915
+  },
+  {
+    "file": "victory.ogg",
+    "archive_file": "Audio/Pizzicato jingles/jingles_PIZZI16.ogg",
+    "source": "https://kenney.nl/assets/music-jingles",
+    "license": "CC0-1.0",
+    "sha256": "1b1211b6360aae37ea685fee057bcabd034a749c1dfac6a9d643086d96e9b9aa",
+    "bytes": 10201
+  },
+  {
+    "file": "fight.ogg",
+    "archive_file": "Audio/fight.ogg",
+    "source": "https://kenney.nl/assets/voiceover-pack-fighter",
+    "license": "CC0-1.0",
+    "sha256": "fc16c61cd474da6c80fffe34fb3bfcee79b754fcc345bd916b0e66a826695e89",
+    "bytes": 14444
+  },
+  {
+    "file": "winner.ogg",
+    "archive_file": "Audio/you_win.ogg",
+    "source": "https://kenney.nl/assets/voiceover-pack-fighter",
+    "license": "CC0-1.0",
+    "sha256": "545b68cd40bc3f91af565b70ea0abcd759ed715edd23e556fa61027374660992",
+    "bytes": 17233
+  },
+  {
+    "file": "round1.ogg",
+    "archive_file": "Audio/round_1.ogg",
+    "source": "https://kenney.nl/assets/voiceover-pack-fighter",
+    "license": "CC0-1.0",
+    "sha256": "cb553cdc365409f927a659088ff08a47bcc20a20a4a113ac1a0e8d325b394df7",
+    "bytes": 21527
+  },
+  {
+    "file": "round2.ogg",
+    "archive_file": "Audio/round_2.ogg",
+    "source": "https://kenney.nl/assets/voiceover-pack-fighter",
+    "license": "CC0-1.0",
+    "sha256": "0ab798f390fcdbc58d5062fdac62ded70191ce20a7d459d2c78309ce6912408d",
+    "bytes": 22489
+  },
+  {
+    "file": "round3.ogg",
+    "archive_file": "Audio/final_round.ogg",
+    "source": "https://kenney.nl/assets/voiceover-pack-fighter",
+    "license": "CC0-1.0",
+    "sha256": "ae0a2e59669888e6ec93d8b061c91267895a18c29fb5045572cb25e2792bdc90",
+    "bytes": 24529
+  }
+]

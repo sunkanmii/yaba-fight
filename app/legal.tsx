@@ -1,1 +1,132 @@
-export function Legal({kind}:{kind:string}){return <div className="legal-copy"><span className="eyebrow">BETA POLICY · 17 OCTOBER 2026</span>{kind==='privacy'?<><p>Yaba Fight uses your email, reserved username and a password hash to provide an account. Passwords are hashed by Better Auth; plaintext passwords are not stored. Signup does not require an email confirmation. Password-reset emails are not available yet.</p><h3>What we store</h3><p>Account details, signed-in sessions and completed online match scores are stored in the game’s Cloudflare D1 database. Practice records and audio settings stay in your browser. Session records include IP address and browser information for account security.</p><p>Online rooms process account usernames, connection tokens and moves. Room state expires within three hours. Your opponent sees your username and messages; each current move stays hidden until the exchange resolves. Chat is relayed without storing message bodies on the server. Cloudflare may process network logs under its own policy.</p><h3>Sponsor enquiries</h3><p>If you request a courtyard space, the game stores your brand, contact email, website, message and selected wall for the owner to review. Requests do not automatically publish artwork, reserve space or charge money. The current boards have no third-party ad code, cookies or trackers.</p><h3>Your choices</h3><p>Use a nickname and keep private information out of chat. Sign out to end your session. You can permanently delete your account, sessions, completed online records and sponsor requests from your account panel by confirming your password. An already-open room expires within three hours. Clear site data to remove local practice records and preferences.</p><p>Only essential cookies and local storage are used. We do not sell personal information. For privacy requests or questions, contact the owner through the project’s feedback link. The game is intended for players aged 16 and over.</p></>:kind==='terms'?<><p>Yaba Fight is a free experimental browser game for players aged 16 and over. By playing, you agree to fair play and these beta terms.</p><h3>Respect the other corner</h3><p>No threats, hate speech, harassment, cheating, impersonation or sharing another person’s private information. You can hide chat or leave a room at any time. Report problems through the feedback link.</p><h3>Your account</h3><p>Use an email you control and save your password safely. Email ownership is not verified at signup, and password recovery has been deferred. Usernames are unique without regard to capitalisation. Practice works without an account; online play requires sign-in. Completed online scores belong to your account; local practice records belong to the browser.</p><h3>A beta, with room to grow</h3><p>Balance, artwork, availability and features may change. There are no cash prizes or wagering. Multiplayer requires an internet connection. Sponsor enquiries are requests for discussion; pricing, dates, artwork and payment must be agreed separately before placement. This beta has no payment checkout.</p><h3>Ownership and support</h3><p>Do not redistribute game assets without permission. You retain rights to your messages and submitted brand material. The game is provided as available, subject to rights that cannot be excluded by applicable law. Send reports to the project’s GitHub issue tracker. A dedicated support email will be published when configured.</p></>:<><p>Only essential cookies and browser storage are used. No advertising or analytics trackers are loaded.</p><h3>Account cookies</h3><p>A secure, HttpOnly session cookie keeps you signed in. Sessions expire after 30 days and may refresh when you return. Authentication cookies use the yf prefix. Signing out revokes the current server session; deleting an account removes all its sessions. Passwords are never kept in local storage.</p><h3>On this device</h3><ul><li><strong>yf-name:</strong> last displayed fighter name. It does not sign you in.</li><li><strong>yf-stats:</strong> local fights and wins.</li><li><strong>yf-sound and yf-audio:</strong> sound, music and impact preferences.</li></ul><p>Local storage remains until you clear this site’s data. Online play also uses an ephemeral room connection token. There are no optional trackers to accept.</p></>}</div>}
+export function Legal({ kind }: { kind: string }) {
+  return (
+    <div className="legal-copy">
+      <span className="eyebrow">ARCADE BETA · 17 OCTOBER 2026</span>
+      {kind === "privacy" ? (
+        <>
+          <p>
+            Arcade fights run on your device. Playing does not require an
+            account. Your nickname, campaign checkpoint, previous move history
+            for adaptive rivals, and audio settings stay in this browser. Arcade
+            moves are not sent to the server.
+          </p>
+          <h3>Optional accounts</h3>
+          <p>
+            If you create an account, Cloudflare D1 stores your email, reserved
+            username, password hash and signed-in sessions. Better Auth hashes
+            passwords; plaintext passwords are not stored. Signup does not
+            require email confirmation. Password-reset email is not available
+            yet. Session records include IP address and browser information for
+            account security. Previous online match scores may remain associated
+            with an account; online play is currently paused.
+          </p>
+          <h3>Sponsor enquiries</h3>
+          <p>
+            Submitting an enquiry stores your brand, contact email, website,
+            message and selected wall in D1 for the owner to review. The form
+            does not charge money, reserve a space or automatically publish
+            artwork. Direct sponsor boards load local artwork without
+            third-party ad scripts or tracking pixels. Visiting a sponsor
+            website is your choice and that website has its own privacy policy.
+          </p>
+          <h3>Your choices</h3>
+          <p>
+            You can sign out or permanently delete your account, sessions,
+            stored online results and sponsor enquiries from the account panel
+            by confirming your password. Clear this site's browser data to erase
+            local arcade progress and preferences. Cloudflare may process
+            network logs under its own policy.
+          </p>
+          <p>
+            Only essential cookies and local storage are used. We do not sell
+            personal information. Send privacy questions through the project's
+            GitHub issue tracker; do not post passwords or private account
+            details there. A dedicated support email will be listed when
+            configured. Intended for ages 16 and over.
+          </p>
+        </>
+      ) : kind === "terms" ? (
+        <>
+          <p>
+            Yaba Fight is a free experimental arcade fighting game for players
+            aged 16 and over. By playing, you agree to fair play and these beta
+            terms.
+          </p>
+          <h3>The arcade</h3>
+          <p>
+            Play seven computer-controlled rivals locally, or practise against
+            one. Adaptive rivals use weighted rules based on your previous
+            choices. Parry has a clearly labelled 50% success chance; there are
+            no cash stakes or prizes. Online play is paused. Local progress
+            belongs to this browser and is not synchronised through your
+            account.
+          </p>
+          <h3>Your account</h3>
+          <p>
+            Use an email you control and save your password safely. Email
+            ownership is not verified at signup, and password recovery is
+            deferred. Reserved account usernames are unique without regard to
+            capitalisation. A local arcade nickname does not reserve an account
+            username.
+          </p>
+          <h3>Sponsorship</h3>
+          <p>
+            Enquiries begin a discussion. Pricing, dates, artwork and payment
+            must be agreed with the owner separately. This beta has no checkout,
+            automatic bookings or renewals. Sponsored links open only after an
+            explicit click. Do not submit artwork or brand material you do not
+            have permission to use.
+          </p>
+          <h3>Availability and support</h3>
+          <p>
+            Balance, artwork and features may change. The game is provided as
+            available, subject to rights that cannot be excluded by applicable
+            law. Original game artwork may not be redistributed without
+            permission; third-party assets retain their own licences. Report
+            bugs through the project's GitHub issue tracker. No domain or paid
+            plan is selected automatically.
+          </p>
+        </>
+      ) : (
+        <>
+          <p>
+            Only essential cookies and browser storage are used. No analytics or
+            advertising trackers are loaded.
+          </p>
+          <h3>Optional account cookies</h3>
+          <p>
+            A secure, HttpOnly session cookie keeps you signed in. Sessions
+            expire after 30 days and may refresh when you return. Authentication
+            cookies use the yf prefix. Signing out revokes the current session;
+            deleting an account removes all its sessions. Passwords are never
+            kept in local storage.
+          </p>
+          <h3>On this device</h3>
+          <ul>
+            <li>
+              <strong>yf-name:</strong> your local fighter nickname.
+            </li>
+            <li>
+              <strong>yf-arcade-v2:</strong> campaign checkpoint, difficulty and
+              recent moves used by adaptive rivals.
+            </li>
+            <li>
+              <strong>yf-arcade-cleared:</strong> whether you completed the
+              arcade.
+            </li>
+            <li>
+              <strong>yf-arcade-audio:</strong> volume, music and mute
+              preferences.
+            </li>
+          </ul>
+          <p>
+            Older yf-stats, yf-sound and yf-audio preferences may remain from
+            previous versions until you clear site data. Local data stays in
+            this browser until cleared. There are no optional trackers to
+            accept.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}

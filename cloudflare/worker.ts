@@ -7,6 +7,7 @@ type Room={code:string;players:Player[];state:ReturnType<typeof freshMatch>;move
 const cleanName=(name:string)=>name.trim().replace(/[<>]/g,'').slice(0,18)||'Fighter';
 const newCode=()=>Array.from(crypto.getRandomValues(new Uint8Array(3)),x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();
 const validToken=(s:unknown):s is string=>typeof s==='string'&&/^[a-f0-9-]{36}$/.test(s);
+const onlineAllowed=(env:Env)=>String(env.ONLINE_PLAY_ENABLED)==='true';
 
 export class FightRoom extends DurableObject<Env>{
  private room:Room|null;
@@ -25,6 +26,7 @@ export class FightRoom extends DurableObject<Env>{
   const pair=new WebSocketPair();this.ctx.acceptWebSocket(pair[1]);pair[1].serializeAttachment({token,window:Date.now(),count:0});this.recordResult();this.broadcast();return new Response(null,{status:101,webSocket:pair[0]});
  }
  webSocketMessage(ws:WebSocket,raw:string|ArrayBuffer){
+  if(!onlineAllowed(this.env)){ws.close(1000,'Online play is paused');this.ctx.waitUntil(this.ctx.storage.deleteAlarm());return}
   if(typeof raw!=='string'||raw.length>2048){ws.close(1009,'Message too large');return}const a=ws.deserializeAttachment() as {token:string;window:number;count:number};const now=Date.now();if(now-a.window>10000){a.window=now;a.count=0}a.count++;ws.serializeAttachment(a);if(a.count>45){this.send(ws,'notice','Easy, champ. Slow down.');return}
   const r=this.room;if(!r||r.closed||r.expires<now)return;const seat=r.players.findIndex(p=>p.token===a.token);if(seat<0)return;
   let msg:{event:string;data?:{move?:string;exchange?:number}|string};try{msg=JSON.parse(raw)}catch{return}if(!msg||typeof msg.event!=='string')return;
@@ -37,7 +39,7 @@ export class FightRoom extends DurableObject<Env>{
  webSocketError(ws:WebSocket){ws.close(1011,'Connection error')}
  async alarm(){
   const r=this.room;if(!r)return;
-  if(r.closed||r.expires<=Date.now()){for(const ws of this.ctx.getWebSockets()){this.send(ws,'opponent-left');ws.close(1000,'Room ended')}await this.ctx.storage.deleteAlarm();this.room=null;await this.ctx.storage.deleteAll();return}
+  if(!onlineAllowed(this.env)||r.closed||r.expires<=Date.now()){for(const ws of this.ctx.getWebSockets()){this.send(ws,'opponent-left');ws.close(1000,'Room ended')}await this.ctx.storage.deleteAlarm();this.room=null;await this.ctx.storage.deleteAll();return}
   if(r.deadline&&r.deadline<=Date.now()&&!r.state.roundOver&&!r.closed){
    r.missed=r.moves.map((m,i)=>m?0:(r.missed?.[i]||0)+1);
    if(r.missed.every(n=>n>=3)){r.closed=true;for(const ws of this.ctx.getWebSockets()){this.send(ws,'opponent-left');ws.close(1000,'Both fighters inactive')}}
@@ -73,6 +75,7 @@ export class Matchmaker extends DurableObject<Env>{
 export default {
  async fetch(request:Request,env:Env):Promise<Response>{
   const url=new URL(request.url);if(!url.pathname.startsWith('/api/'))return env.ASSETS.fetch(request);
+  if(!onlineAllowed(env)&&(url.pathname==='/api/rooms'||url.pathname.startsWith('/api/ws/')))return Response.json({error:'Online play is paused. Arcade runs on this device.',code:'ONLINE_PAUSED'},{status:503,headers:{'Cache-Control':'no-store'}});
   const origin=request.headers.get('Origin');if(origin&&origin!==url.origin)return Response.json({error:'Origin not allowed'},{status:403});
   if(url.pathname.startsWith('/api/auth/')){
    if(/\/(request-password-reset|reset-password)(\/|$)/.test(url.pathname))return Response.json({message:'Password recovery is not available yet.'},{status:503});

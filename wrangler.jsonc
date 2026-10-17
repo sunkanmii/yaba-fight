@@ -4,6 +4,7 @@
   "main": "cloudflare/worker.ts",
   "compatibility_date": "2026-10-17",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {"ONLINE_PLAY_ENABLED":"false"},
   "d1_databases": [{"binding":"DB","database_name":"yaba-fight-players","database_id":"50276f06-f150-4179-ac1b-ba040aff9de9","migrations_dir":"cloudflare/migrations"}],
   "assets": {"directory": "./out", "binding": "ASSETS", "run_worker_first": ["/api/*"]},
   "durable_objects": {"bindings": [

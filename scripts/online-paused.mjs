@@ -1,0 +1,1 @@
+console.log('Online play is intentionally paused. No cloud rooms, matchmaking traffic, or live multiplayer test will be started. Use npm test for local Durable Object alarm and offline-switch regression checks.');

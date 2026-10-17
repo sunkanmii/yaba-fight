@@ -5,7 +5,7 @@ const contexts=[];const make=async()=>{const c=await request.newContext({baseURL
 const owner=await make(),other=await make(),guest=await make();const suffix=Date.now().toString(36);const username=`Test_${suffix}`,email=`qa-${suffix}@example.com`,password='A-test-password-9374';
 const post=(ctx,path,data)=>ctx.post(path,{data});
 try{
- let r=await post(guest,'/api/rooms',{action:'create-room',name:'Imposter',token:crypto.randomUUID()});assert.equal(r.status(),401);
+ let r=await post(guest,'/api/rooms',{action:'create-room',name:'Imposter',token:crypto.randomUUID()});assert.equal(r.status(),503);
  r=await post(owner,'/api/auth/sign-up/email',{email,password,name:username,username,displayUsername:username});assert.equal(r.status(),200,await r.text());let data=await r.json();assert.equal(data.user.emailVerified,false);assert.equal(data.user.username,username.toLowerCase());assert.equal('password' in data.user,false);
  let account=await (await owner.get('/api/account')).json();assert.equal(account.user.name,username);assert.equal(account.record.played,0);
  const cookies=(await owner.storageState()).cookies;assert.ok(cookies.some(c=>c.name.includes('session_token')&&c.httpOnly&&c.sameSite==='Lax'));if(base.startsWith('https:'))assert.ok(cookies.every(c=>c.secure));
